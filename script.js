@@ -21,7 +21,7 @@ async function loadTodos() {
         // Add each todo to the DOM
         snapshot.forEach((doc) => {
             const todoData = doc.data();
-            addTodoToDOM(doc.id, todoData.text, todoData.completed);
+            addTodoToDOM(doc.id, todoData.text, todoData.completed, todoData.assignedTo || 'T');
         });
         
         updateArrowVisibility();
@@ -35,10 +35,12 @@ async function loadTodos() {
  * @param {string} id - Firestore document ID
  * @param {string} todoText - The text content of the todo
  * @param {boolean} completed - Whether the todo is completed
+ * @param {string} assignedTo - Who the todo is assigned to ('T' or 'K')
  */
-function addTodoToDOM(id, todoText, completed = false) {
+function addTodoToDOM(id, todoText, completed = false, assignedTo = 'T') {
     const li = document.createElement('li');
     li.dataset.id = id; // Store the Firestore document ID
+    li.dataset.assignedTo = assignedTo; // Store who it's assigned to
     if (completed) li.classList.add('completed');
 
     // Create text span
@@ -71,11 +73,46 @@ function addTodoToDOM(id, todoText, completed = false) {
         }
     }));
 
-    // Append elements to list item
-    li.appendChild(textSpan);
-    li.appendChild(buttonContainer);
+    // Create assignment toggle button
+    const assignButton = document.createElement('button');
+    assignButton.className = 'assign-button';
+    assignButton.textContent = assignedTo;
+    assignButton.title = assignedTo === 'T' ? 'Assigned to T (Click to assign to K)' : 'Assigned to K (Click to assign to T)';
+    
+    // Add class based on who it's assigned to
+    assignButton.classList.add(assignedTo === 'T' ? 'assign-t' : 'assign-k');
+    
+    // Toggle assignment when clicked
+    assignButton.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        
+        // Toggle between T and K
+        const newAssignment = assignedTo === 'T' ? 'K' : 'T';
+        
+        // Update in Firestore
+        try {
+            const docRef = db.collection(TODOS_COLLECTION).doc(id);
+            await docRef.update({
+                assignedTo: newAssignment
+            });
+            
+            // Update in DOM
+            li.dataset.assignedTo = newAssignment;
+            assignButton.textContent = newAssignment;
+            assignButton.title = newAssignment === 'T' ? 'Assigned to T (Click to assign to K)' : 'Assigned to K (Click to assign to T)';
+            
+            // Update class
+            assignButton.classList.remove('assign-t', 'assign-k');
+            assignButton.classList.add(newAssignment === 'T' ? 'assign-t' : 'assign-k');
+        } catch (error) {
+            console.error("Error updating assignment: ", error);
+        }
+    });
+    
+    // Add the assignment button to the button container
+    buttonContainer.appendChild(assignButton);
 
-    // Add click event to toggle completion
+    // Add event listener to toggle completion
     li.addEventListener('click', async () => {
         li.classList.toggle('completed');
         textSpan.style.textDecoration = textSpan.style.textDecoration === 'line-through' ? '' : 'line-through';
@@ -87,11 +124,12 @@ function addTodoToDOM(id, todoText, completed = false) {
         });
     });
 
-    // Add to list (at the top)
-    todoList.insertBefore(li, todoList.firstChild);
+    // Append elements to list item
+    li.appendChild(textSpan);
+    li.appendChild(buttonContainer);
     
-    // Update arrow visibility after adding a new item
-    updateArrowVisibility();
+    // Add to the list
+    todoList.appendChild(li);
 }
 
 /**
@@ -173,11 +211,12 @@ async function addNewTodo() {
             text: todoText,
             completed: false,
             position: position,
+            assignedTo: 'T', // Default assignment
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
         // Add to DOM
-        addTodoToDOM(docRef.id, todoText);
+        addTodoToDOM(docRef.id, todoText, false, 'T');
         
         // Clear input
         todoInput.value = '';

@@ -11,6 +11,8 @@
     --primary-color: #6c7bff;
     --primary-hover: #5a68e4;
     --danger-color: #ff6b6b;
+    --assign-t-color: #4caf50;
+    --assign-k-color: #ff9800;
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
     --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
     --border-radius-sm: 8px;
@@ -182,6 +184,43 @@ button:active {
 .arrow-button:hover {
     background-color: var(--border-color);
     color: var(--primary-color);
+    transform: none;
+}
+
+.assign-button {
+    background-color: transparent;
+    border: 1px solid;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.assign-t {
+    color: var(--assign-t-color);
+    border-color: var(--assign-t-color);
+}
+
+.assign-k {
+    color: var(--assign-k-color);
+    border-color: var(--assign-k-color);
+}
+
+.assign-t:hover {
+    background-color: var(--assign-t-color);
+    color: var(--text-bright);
+    transform: none;
+}
+
+.assign-k:hover {
+    background-color: var(--assign-k-color);
+    color: var(--text-bright);
     transform: none;
 }
 
