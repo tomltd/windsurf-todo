@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Test</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #3a86ff;
+        }
+        #output {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            color: #2e7d32;
+        }
+        .error {
+            color: #d32f2f;
+        }
+        button {
+            background-color: #3a86ff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Firebase Connection Test</h1>
+    <p>This page tests the connection to your Firebase project. Check the console for detailed logs.</p>
+    
+    <div id="output">Waiting for tests to run...</div>
+    
+    <button id="run-test">Run Test Again</button>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics-compat.js"></script>
+    
+    <script>
+        // Capture console logs
+        const outputDiv = document.getElementById('output');
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        console.log = function() {
+            const args = Array.from(arguments);
+            outputDiv.innerHTML += `<div class="success">${args.join(' ')}</div>`;
+            originalConsoleLog.apply(console, arguments);
+        };
+        
+        console.error = function() {
+            const args = Array.from(arguments);
+            outputDiv.innerHTML += `<div class="error">${args.join(' ')}</div>`;
+            originalConsoleError.apply(console, arguments);
+        };
+        
+        // Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyAlpTi5HTBrtejWOy3mucSuJ6kX9170E_A",
+          authDomain: "windsurf-todo.firebaseapp.com",
+          projectId: "windsurf-todo",
+          storageBucket: "windsurf-todo.firebasestorage.app",
+          messagingSenderId: "477111723364",
+          appId: "1:477111723364:web:ee80fcfc748921d9fc8671",
+          measurementId: "G-VE5MZGWNCZ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Test function to add a document
+        async function testAddDocument() {
+          try {
+            const docRef = await db.collection('test').add({
+              message: 'Hello from test script',
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log('Document written with ID: ', docRef.id);
+            return docRef.id;
+          } catch (error) {
+            console.error('Error adding document: ', error);
+            throw error;
+          }
+        }
+
+        // Test function to read a document
+        async function testReadDocument(docId) {
+          try {
+            const docRef = db.collection('test').doc(docId);
+            const doc = await docRef.get();
+            
+            if (doc.exists) {
+              console.log('Document data:', doc.data());
+            } else {
+              console.log('No such document!');
+            }
+          } catch (error) {
+            console.error('Error getting document: ', error);
+          }
+        }
+
+        // Test function to delete a document
+        async function testDeleteDocument(docId) {
+          try {
+            await db.collection('test').doc(docId).delete();
+            console.log('Document successfully deleted!');
+          } catch (error) {
+            console.error('Error removing document: ', error);
+          }
+        }
+
+        // Run tests
+        async function runTests() {
+          outputDiv.innerHTML = ''; // Clear previous output
+          console.log('Starting Firebase tests...');
+          
+          try {
+            // Test adding a document
+            const docId = await testAddDocument();
+            
+            // Test reading the document
+            await testReadDocument(docId);
+            
+            // Test deleting the document
+            await testDeleteDocument(docId);
+            
+            console.log('All tests completed successfully!');
+          } catch (error) {
+            console.error('Tests failed:', error);
+          }
+        }
+
+        // Execute tests when the page loads
+        document.addEventListener('DOMContentLoaded', runTests);
+        
+        // Add event listener for the button
+        document.getElementById('run-test').addEventListener('click', runTests);
+    </script>
+</body>
+</html>
