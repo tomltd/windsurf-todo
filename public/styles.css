@@ -128,7 +128,8 @@ button:active {
 
 .action-buttons {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     margin-top: var(--spacing-lg);
 }
 
@@ -243,22 +244,19 @@ button:active {
 }
 
 .theme-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
+    position: relative;
     background-color: var(--container-bg);
     border: 2px solid var(--primary-color);
     color: var(--text-color);
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 22px;
+    font-size: 20px;
     transition: var(--transition);
-    z-index: 1000;
     box-shadow: var(--shadow-sm);
 }
 
