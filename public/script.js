@@ -86,8 +86,11 @@ function addTodoToDOM(id, todoText, completed = false, assignedTo = 'T') {
     assignButton.addEventListener('click', async (event) => {
         event.stopPropagation();
         
+        // Get current assignment from the DOM element
+        const currentAssignment = li.dataset.assignedTo;
+        
         // Toggle between T and K
-        const newAssignment = assignedTo === 'T' ? 'K' : 'T';
+        const newAssignment = currentAssignment === 'T' ? 'K' : 'T';
         
         // Update in Firestore
         try {

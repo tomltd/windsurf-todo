@@ -1,11 +1,16 @@
+console.log("Script loaded");
+
 // DOM elements
 const todoInput = document.getElementById('todo-input');
 const todoList = document.getElementById('todo-list');
 const addTodoBtn = document.getElementById('add-todo');
 const clearCompletedBtn = document.getElementById('clear-completed');
+const themeToggleBtn = document.getElementById('theme-toggle');
+console.log("themeToggleBtn:", themeToggleBtn);
 
 // Constants
 const TODOS_COLLECTION = 'todos';
+const THEME_STORAGE_KEY = 'todo-app-theme';
 
 /**
  * Load todos from Firestore and render them
@@ -86,8 +91,11 @@ function addTodoToDOM(id, todoText, completed = false, assignedTo = 'T') {
     assignButton.addEventListener('click', async (event) => {
         event.stopPropagation();
         
+        // Get current assignment from the DOM element
+        const currentAssignment = li.dataset.assignedTo;
+        
         // Toggle between T and K
-        const newAssignment = assignedTo === 'T' ? 'K' : 'T';
+        const newAssignment = currentAssignment === 'T' ? 'K' : 'T';
         
         // Update in Firestore
         try {
@@ -258,16 +266,71 @@ async function clearCompleted() {
     }
 }
 
-// Event Listeners
-addTodoBtn.addEventListener('click', addNewTodo);
+/**
+ * Initialize the app
+ */
+function initApp() {
+    // Load todos from Firestore
+    loadTodos();
+    
+    // Set up event listeners
+    addTodoBtn.addEventListener('click', addNewTodo);
+    todoInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addNewTodo();
+    });
+    clearCompletedBtn.addEventListener('click', clearCompleted);
+    
+    // Set up theme toggle
+    initTheme();
+    themeToggleBtn.addEventListener('click', toggleTheme);
+}
 
-todoInput.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-        addNewTodo();
+/**
+ * Initialize theme based on local storage or system preference
+ */
+function initTheme() {
+    // Check if theme is stored in local storage
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    
+    if (storedTheme) {
+        // Use stored theme preference
+        setTheme(storedTheme);
+    } else {
+        // Check system preference
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(prefersDarkScheme ? 'dark' : 'light');
     }
-});
+}
 
-clearCompletedBtn.addEventListener('click', clearCompleted);
+/**
+ * Toggle between light and dark themes
+ */
+function toggleTheme() {
+    const body = document.body;
+    const currentTheme = body.classList.contains('light-theme') ? 'light' : 'dark';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    setTheme(newTheme);
+    
+    // Save theme preference to local storage
+    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+}
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', loadTodos);
+/**
+ * Set the theme to light or dark
+ * @param {string} theme - 'light' or 'dark'
+ */
+function setTheme(theme) {
+    const body = document.body;
+    
+    if (theme === 'light') {
+        body.classList.remove('dark-theme');
+        body.classList.add('light-theme');
+    } else {
+        body.classList.remove('light-theme');
+        body.classList.add('dark-theme');
+    }
+}
+
+// Initialize the app when the DOM is loaded
+document.addEventListener('DOMContentLoaded', initApp);

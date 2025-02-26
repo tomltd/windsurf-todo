@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toggle Button Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .assign-button {
+            background-color: transparent;
+            border: 1px solid;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .assign-t {
+            color: #4caf50;
+            border-color: #4caf50;
+        }
+        .assign-k {
+            color: #ff9800;
+            border-color: #ff9800;
+        }
+        .assign-t:hover {
+            background-color: #4caf50;
+            color: white;
+        }
+        .assign-k:hover {
+            background-color: #ff9800;
+            color: white;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .todo-text {
+            flex: 1;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Toggle Button Test</h1>
+    
+    <div class="todo-item" data-assigned-to="T">
+        <span class="todo-text">Test Todo Item</span>
+        <button id="toggleButton" class="assign-button assign-t">T</button>
+    </div>
+    
+    <script>
+        const toggleButton = document.getElementById('toggleButton');
+        const todoItem = document.querySelector('.todo-item');
+        
+        toggleButton.addEventListener('click', () => {
+            // Get current assignment
+            const currentAssignment = todoItem.dataset.assignedTo;
+            
+            // Toggle between T and K
+            const newAssignment = currentAssignment === 'T' ? 'K' : 'T';
+            
+            // Update data attribute
+            todoItem.dataset.assignedTo = newAssignment;
+            
+            // Update button text
+            toggleButton.textContent = newAssignment;
+            
+            // Update class
+            toggleButton.classList.remove('assign-t', 'assign-k');
+            toggleButton.classList.add(newAssignment === 'T' ? 'assign-t' : 'assign-k');
+            
+            console.log('Toggled to:', newAssignment);
+        });
+    </script>
+</body>
+</html>
