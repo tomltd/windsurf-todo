@@ -336,4 +336,19 @@ button:active {
     #todo-list li {
         padding: 14px;
     }
+    
+    .button-container {
+        gap: 4px; /* Reduce the gap between buttons */
+    }
+    
+    .assign-button {
+        font-size: 12px; /* Reduce the font size */
+        width: 25px; /* Reduce the width */
+        height: 25px; /* Reduce the height */
+    }
+    
+    /* Override the 100% width for buttons in the button container */
+    .button-container button {
+        width: auto;
+    }
 }
